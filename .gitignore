@@ -54,3 +54,5 @@ app.*.map.json
 /macos/
 .metadata
 time_manager.iml
+
+**/static_data.dart
