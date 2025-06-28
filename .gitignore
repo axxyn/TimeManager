@@ -44,6 +44,8 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# ==============================================
+
 # Build folders
 /android/
 /web/
@@ -52,7 +54,14 @@ app.*.map.json
 /linux/
 /ios/
 /macos/
+
+# Misc
 .metadata
 time_manager.iml
 
+# Static data
 **/static_data.dart
+
+# Generated files
+**/*.freezed.*
+**/*.g.*
