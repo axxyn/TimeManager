@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:time_manager/theme/colorScheme.dart';
+import 'package:time_manager/theme/color_scheme.dart';
 import 'package:time_manager/theme/colors.dart';
 
 class AppTheme extends StatelessWidget {

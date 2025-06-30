@@ -1,9 +1,9 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:time_manager/models/user.dart';
 
-part 'taskEntry.freezed.dart';
+part 'task_entry.freezed.dart';
 
-part 'taskEntry.g.dart';
+part 'task_entry.g.dart';
 
 enum Letters {
   A,
