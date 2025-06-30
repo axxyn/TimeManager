@@ -1,5 +1,8 @@
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:time_manager/database.dart';
 import 'package:time_manager/models/user.dart';
+
+final userRepositoryProvider = Provider<UserRepository>((ref) => UserRepository());
 
 class UserRepository {
   Future<int> insert(User user) async {

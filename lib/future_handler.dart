@@ -41,7 +41,10 @@ class FutureHandler<T> extends StatelessWidget {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
           case ConnectionState.active:
-            return Center(child: CircularProgressIndicator());
+            return const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Center(child: CircularProgressIndicator()),
+            );
           case ConnectionState.none:
           case ConnectionState.done:
             return callback(snapshot.data as T);

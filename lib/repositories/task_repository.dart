@@ -1,5 +1,8 @@
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:time_manager/database.dart';
 import 'package:time_manager/models/task.dart';
+
+final taskRepositoryProvider = Provider<TaskRepository>((ref) => TaskRepository());
 
 class TaskRepository {
   Future<int> insert(Task task) async {
