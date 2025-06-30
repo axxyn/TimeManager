@@ -1,111 +1,94 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:time_manager/futureHandler.dart';
 import 'package:time_manager/models/task.dart';
 import 'package:time_manager/repositories/taskRepository.dart';
+import 'package:time_manager/database.dart';
 import 'package:time_manager/repositories/userRepository.dart';
+import 'package:time_manager/theme/appTheme.dart';
 
-import 'database.dart';
 import 'models/user.dart';
+
+// CTRL+W
+// CTRL+ALT+L
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DatabaseHelper.instance.initDb();
 
-  runApp(const ProviderScope(
-    child: MyApp()
-  ));
+  runApp(ProviderScope(child: AppTheme(child: MyApp())));
 }
 
-class MyApp extends StatelessWidget {
+final menuIndexProvider = StateProvider((ref) => 0);
+
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       title: 'Flutter',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const HomePage(),
+      theme: Theme.of(context),
+      home: Home(),
     );
   }
 }
 
-class HomePage extends ConsumerStatefulWidget {
-  const HomePage({super.key});
-  
-  @override
-  ConsumerState<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends ConsumerState<HomePage> {
-  List<User> _users = [];
-  List<Task> _tasks = [];
-  int currentPageIndex = 0;
+class Home extends HookConsumerWidget {
+  const Home({super.key});
 
   @override
-  void initState() {
-    super.initState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final menuIndex = ref.watch(menuIndexProvider);
 
-    Future.wait([
-      _fetchUsers(),
-      _fetchTasks()
-    ]);
-  }
+    final tasksFuture = TaskRepository().queryAll();
+    final usersFuture = UserRepository().queryAll();
 
-  Future<void> _fetchUsers() async {
-    UserRepository userRepository = UserRepository();
-    final userMaps = await userRepository.queryAll();
-    setState(() {
-      _users = userMaps.map((userMap) => User.fromJson(userMap)).toList();
-    });
-  }
-
-  Future<void> _fetchTasks() async {
-    TaskRepository taskRepository = TaskRepository();
-    final taskMaps = await taskRepository.queryAll();
-    setState(() {
-      _tasks = taskMaps.map((taskMap) => Task.fromJson(taskMap)).toList();
-    });
-  }
-
-  Widget wrapSafeArea(Widget child) {
-    return SafeArea(
-      minimum: EdgeInsets.symmetric(horizontal: 16),
-      child: child
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
-      body: <Widget>[
-        wrapSafeArea(Text('Home')),
-        ListView.builder(
-          itemCount: _tasks.length,
-          itemBuilder: (context, index) {
-            return ListTile(
-              title: Text('${_tasks[index].name} ${_tasks[index].duration}'),
-            );
-          },
-        ),
-        ListView.builder(
-          itemCount: _users.length,
-          itemBuilder: (context, index) {
-            return ListTile(
-              title: Text('${_users[index].name} ${_users[index].surname}'),
-            );
-          },
-        ),
-      ][currentPageIndex],
+      body: SafeArea(
+        child: <Widget>[
+          Center(child: Text('Home', style: TextStyle(fontSize: 40))),
+          Column(
+            children: [
+              Text('Zadania'),
+              FutureHandler(
+                future: tasksFuture,
+                callback: (data) {
+                  return ListView.builder(
+                    itemCount: data.length,
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      Task task = Task.fromJson(data[index]);
+                      return ListTile(
+                        title: Text('${task.name} ${task.duration}'),
+                      );
+                    },
+                  );
+                },
+              ),
+              ElevatedButton(onPressed: () {}, child: Text('Dodaj zadanie')),
+            ],
+          ),
+          FutureHandler(
+            future: usersFuture,
+            callback: (data) {
+              List<Widget> list = [];
+              for (Map<String, dynamic> item in data) {
+                User user = User.fromJson(item);
+                list.add(
+                  ListTile(title: Text('${user.name} ${user.surname ?? ''}')),
+                );
+              }
+              return ExpansionTile(title: Text('Pracownicy'), children: list);
+            },
+          ),
+        ][menuIndex],
+      ),
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
-          setState(() {
-            currentPageIndex = index;
-          });
+          ref.read(menuIndexProvider.notifier).state = index;
         },
-        indicatorColor: Colors.amber,
-        selectedIndex: currentPageIndex,
+        selectedIndex: menuIndex,
         destinations: const <Widget>[
           NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
           NavigationDestination(

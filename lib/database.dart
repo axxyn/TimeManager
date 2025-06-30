@@ -2,7 +2,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:time_manager/models/task.dart';
 import 'package:time_manager/static_data.dart';
-import 'models/user.dart';
+import 'package:time_manager/models/user.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._instance();
