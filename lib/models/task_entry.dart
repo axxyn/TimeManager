@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:time_manager/models/user.dart';
+import 'package:time_manager/repositories/repository.dart';
 
 part 'task_entry.freezed.dart';
 
@@ -12,10 +13,10 @@ enum Letters {
 }
 
 @freezed
-class TaskEntry with _$TaskEntry {
-  const TaskEntry._();
+class TaskEntry with _$TaskEntry, Mappable  {
+  TaskEntry._();
 
-  const factory TaskEntry({
+  factory TaskEntry({
     int? id,
     required int number,
     required Letters letter,
@@ -23,4 +24,7 @@ class TaskEntry with _$TaskEntry {
   }) = _TaskEntry;
 
   factory TaskEntry.fromJson(Map<String, dynamic> json) => _$TaskEntryFromJson(json);
+
+  Map<String, dynamic> toMap() => toJson();
+  fromMap(Map<String, dynamic> map) => _$TaskEntryFromJson(map);
 }

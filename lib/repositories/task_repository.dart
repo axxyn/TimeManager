@@ -1,27 +1,42 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:time_manager/database.dart';
+import 'package:time_manager/cache_notifier.dart';
 import 'package:time_manager/models/task.dart';
+import 'package:time_manager/repositories/repository.dart';
 
-final taskRepositoryProvider = Provider<TaskRepository>((ref) => TaskRepository());
+final taskRepositoryProvider = Provider<TaskRepository>((ref) => TaskRepository(ref));
 
-class TaskRepository {
-  Future<int> insert(Task task) async {
-    final db = await DatabaseHelper.instance.db;
-    return await db.insert('tasks', task.toJson());
+final _taskProvider = StateNotifierProvider<CacheNotifier<Task>, List<Task>>((ref) => CacheNotifier<Task>());
+
+final tasksProvider = Provider((ref) {
+  final cache = ref.watch(_taskProvider);
+  return cache;
+});
+
+final taskFutureProvider = Provider((ref) async {
+  final repository = ref.read(taskRepositoryProvider);
+  final result = await repository.queryAll();
+  for(dynamic item in result) {
+    Task task = Task.fromJson(item);
+    repository.cache.add(task);
   }
+  await Future.delayed(Duration(seconds: 3));
+  return result;
+});
 
-  Future<List<Map<String, dynamic>>> queryAll() async {
-    final db = await DatabaseHelper.instance.db;
-    return await db.query('tasks');
-  }
+class TaskRepository extends Repository<Task> {
+  TaskRepository(this.ref);
 
-  Future<int> update(Task task) async {
-    final db = await DatabaseHelper.instance.db;
-    return await db.update('tasks', task.toJson(), where: 'id = ?', whereArgs: [task.id]);
-  }
+  @override
+  final Ref ref;
 
-  Future<int> delete(int id) async {
-    final db = await DatabaseHelper.instance.db;
-    return await db.delete('tasks', where: 'id = ?', whereArgs: [id]);
+  @override
+  String get table => 'tasks';
+
+  @override
+  CacheNotifier<Task> get cache => ref.watch(_taskProvider.notifier);
+
+  @override
+  Task fromJson(Map<String, dynamic> json) {
+    return Task.fromJson(json);
   }
 }

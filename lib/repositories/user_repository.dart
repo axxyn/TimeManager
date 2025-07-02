@@ -1,27 +1,42 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:time_manager/database.dart';
+import 'package:time_manager/cache_notifier.dart';
 import 'package:time_manager/models/user.dart';
+import 'package:time_manager/repositories/repository.dart';
 
-final userRepositoryProvider = Provider<UserRepository>((ref) => UserRepository());
+final userRepositoryProvider = Provider<UserRepository>((ref) => UserRepository(ref));
 
-class UserRepository {
-  Future<int> insert(User user) async {
-    final db = await DatabaseHelper.instance.db;
-    return await db.insert('users', user.toJson());
+final _userProvider = StateNotifierProvider<CacheNotifier<User>, List<User>>((ref) => CacheNotifier<User>());
+
+final usersProvider = Provider((ref) {
+  final cache = ref.watch(_userProvider);
+  return cache;
+});
+
+final userFutureProvider = Provider((ref) async {
+  final repository = ref.read(userRepositoryProvider);
+  final result = await repository.queryAll();
+  for(dynamic item in result) {
+    User user = User.fromJson(item);
+    repository.cache.add(user);
   }
+  await Future.delayed(Duration(seconds: 3));
+  return result;
+});
 
-  Future<List<Map<String, dynamic>>> queryAll() async {
-    final db = await DatabaseHelper.instance.db;
-    return await db.query('users');
-  }
+class UserRepository extends Repository<User> {
+  UserRepository(this.ref);
 
-  Future<int> update(User user) async {
-    final db = await DatabaseHelper.instance.db;
-    return await db.update('users', user.toJson(), where: 'id = ?', whereArgs: [user.id]);
-  }
+  @override
+  final Ref ref;
 
-  Future<int> delete(int id) async {
-    final db = await DatabaseHelper.instance.db;
-    return await db.delete('users', where: 'id = ?', whereArgs: [id]);
+  @override
+  String get table => 'users';
+
+  @override
+  CacheNotifier<User> get cache => ref.watch(_userProvider.notifier);
+
+  @override
+  User fromJson(Map<String, dynamic> json) {
+    return User.fromJson(json);
   }
 }

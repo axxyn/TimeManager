@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 class FutureHandler<T> extends StatelessWidget {
-  const FutureHandler({super.key, required this.future, required this.callback});
+  const FutureHandler({super.key, required this.future, required this.child});
 
   final Future<T>? future;
-  final Widget Function(T data) callback;
+  final Widget Function() child;
 
   @override
   Widget build(BuildContext context) {
@@ -12,6 +12,9 @@ class FutureHandler<T> extends StatelessWidget {
       future: future,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
+          final error = snapshot.error;
+          debugPrint('$error');
+
           return Padding(
             padding: const EdgeInsets.all(16.0),
             child: Center(
@@ -47,7 +50,7 @@ class FutureHandler<T> extends StatelessWidget {
             );
           case ConnectionState.none:
           case ConnectionState.done:
-            return callback(snapshot.data as T);
+            return child();
         }
       },
     );
