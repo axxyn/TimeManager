@@ -1,8 +1,8 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:time_manager/database.dart';
+import 'package:time_manager/repositories/task_repository.dart';
 import 'package:time_manager/screens/home_screen.dart';
 import 'package:time_manager/screens/tasks_screen.dart';
 import 'package:time_manager/screens/user_screen.dart';
@@ -14,8 +14,6 @@ void main() async {
 
   runApp(ProviderScope(child: AppTheme(child: MyApp())));
 }
-
-final menuIndexProvider = StateProvider((ref) => 0);
 
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
@@ -35,7 +33,7 @@ class Home extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final menuIndex = ref.watch(menuIndexProvider);
+    final menuIndex = useState(1);
 
     return Scaffold(
       body: SafeArea(
@@ -43,13 +41,13 @@ class Home extends HookConsumerWidget {
           HomeScreen(),
           TasksScreen(),
           UserScreen(),
-        ][menuIndex],
+        ][menuIndex.value],
       ),
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
-          ref.read(menuIndexProvider.notifier).state = index;
+          menuIndex.value = index;
         },
-        selectedIndex: menuIndex,
+        selectedIndex: menuIndex.value,
         destinations: const <Widget>[
           NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
           NavigationDestination(

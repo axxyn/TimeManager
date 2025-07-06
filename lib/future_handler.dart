@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class FutureHandler<T> extends StatelessWidget {
   const FutureHandler({super.key, required this.future, required this.child});
 
-  final Future<T>? future;
+  final Future<T> future;
   final Widget Function() child;
 
   @override
@@ -12,9 +12,6 @@ class FutureHandler<T> extends StatelessWidget {
       future: future,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          final error = snapshot.error;
-          debugPrint('$error');
-
           return Padding(
             padding: const EdgeInsets.all(16.0),
             child: Center(
@@ -36,6 +33,7 @@ class FutureHandler<T> extends StatelessWidget {
                     ),
                     textAlign: TextAlign.center,
                   ),
+                  Text(snapshot.error.toString()),
                 ],
               ),
             ),

@@ -1,22 +1,21 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:time_manager/repositories/repository.dart';
+import 'package:time_manager/models/utils.dart';
 
 part 'task.freezed.dart';
 
 part 'task.g.dart';
 
 @freezed
-class Task with _$Task, Mappable {
+class Task with _$Task, Identifiable {
   Task._();
 
   factory Task({
-    int? id,
+    @JsonKey(includeIfNull: false) int? id,
     required String name,
     required int duration
   }) = _Task;
 
   factory Task.fromJson(Map<String, dynamic> json) => _$TaskFromJson(json);
-
-  Map<String, dynamic> toMap() => toJson();
-  fromMap(Map<String, dynamic> map) => _$TaskFromJson(map);
+  @override
+  Map<String, dynamic> toJson() => toJson();
 }

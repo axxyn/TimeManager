@@ -1,21 +1,26 @@
-import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:time_manager/cache_notifier.dart';
 import 'package:time_manager/database.dart';
+import 'package:time_manager/models/utils.dart';
 
-abstract class Repository<T extends Mappable> with CacheNotifierMixin<T> {
+abstract class Repository<T extends Identifiable> with CacheNotifierMixin<T> {
   String get table;
   Ref get ref;
 
   Future<int> insert(T item) async {
     final db = await DatabaseHelper.instance.db;
-    final result = await db.insert(table, item.toJson());
-    Map<String, dynamic> data = {...item.toJson(), 'id': result};
-    if(result != 0) {
-      cache.add(fromJson(data));
-      debugPrint('$result Added to cache ${item.toString()}');
+
+    final isAdded = await db.query(table, where: 'name = ?', whereArgs: [item.name]);
+
+    if(isAdded.isEmpty) {
+      final result = await db.insert(table, item.toJson());
+      if (result != 0) {
+        Map<String, dynamic> data = {...item.toJson(), 'id': result};
+        cache.add(fromJson(data));
+      }
+      return result;
     }
-    return result;
+    return 0;
   }
 
   Future<List<Map<String, dynamic>>> queryAll() async {
@@ -39,9 +44,4 @@ abstract class Repository<T extends Mappable> with CacheNotifierMixin<T> {
   }
 
   T fromJson(Map<String, dynamic> json);
-}
-
-mixin Mappable {
-  int? id;
-  Map<String, dynamic> toJson();
 }

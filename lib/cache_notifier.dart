@@ -8,7 +8,7 @@ class CacheNotifier<T> extends StateNotifier<List<T>> {
   }
 
   void remove(T item) {
-    if(state.contains(item)) state = [...state].where((e) => e != item).toList();
+    state = [...state].where((e) => e != item).toList();
   }
 
   void removeAll(List<T> items) {

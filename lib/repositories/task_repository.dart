@@ -15,7 +15,8 @@ final tasksProvider = Provider((ref) {
 final taskFutureProvider = Provider((ref) async {
   final repository = ref.read(taskRepositoryProvider);
   final result = await repository.queryAll();
-  for(dynamic item in result) {
+  repository.cache.clear();
+  for(Map<String, dynamic> item in result) {
     Task task = Task.fromJson(item);
     repository.cache.add(task);
   }

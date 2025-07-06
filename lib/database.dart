@@ -19,8 +19,15 @@ class DatabaseHelper {
     String databasesPath = await getDatabasesPath();
     String path = join(databasesPath, 'taskmanager.db');
 
-    await deleteDatabase(path);
     return await openDatabase(path, version: 1, onCreate: _onCreate);
+  }
+
+  Future resetDb() async {
+    String databasesPath = await getDatabasesPath();
+    String path = join(databasesPath, 'taskmanager.db');
+
+    await deleteDatabase(path);
+    _database = null;
   }
 
   Future _onCreate(Database db, int version) async {
