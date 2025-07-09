@@ -12,6 +12,11 @@ final tasksProvider = Provider((ref) {
   return cache;
 });
 
+final taskProvider = Provider.family((ref, int id) {
+  final cache = ref.watch(_taskProvider);
+  return cache[id];
+});
+
 final taskFutureProvider = Provider((ref) async {
   final repository = ref.read(taskRepositoryProvider);
   final result = await repository.queryAll();

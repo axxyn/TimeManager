@@ -1,6 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:time_manager/models/utils.dart';
 
-class CacheNotifier<T> extends StateNotifier<List<T>> {
+class CacheNotifier<T extends Identifiable> extends StateNotifier<List<T>> {
   CacheNotifier() : super([]);
 
   void add(T item) {
@@ -19,12 +20,12 @@ class CacheNotifier<T> extends StateNotifier<List<T>> {
     state = [];
   }
 
-  T? operator [](int index) {
-    return state[index];
+  T? operator [](int id) {
+    return state.firstWhere((e) => e.id == id);
   }
 
-  void operator []=(int index, T value) {
-    state[index] = value;
+  void operator []=(int id, T value) {
+    state[state.indexWhere((e) => e.id == id)] = value;
   }
 
   int get length => state.length;
@@ -34,6 +35,6 @@ class CacheNotifier<T> extends StateNotifier<List<T>> {
   List<T> get list => state;
 }
 
-mixin CacheNotifierMixin<T> {
+mixin CacheNotifierMixin<T extends Identifiable> {
   CacheNotifier<T> get cache;
 }

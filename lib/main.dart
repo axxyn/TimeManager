@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:time_manager/database.dart';
-import 'package:time_manager/repositories/task_repository.dart';
 import 'package:time_manager/screens/home_screen.dart';
 import 'package:time_manager/screens/tasks_screen.dart';
 import 'package:time_manager/screens/user_screen.dart';
+import 'package:time_manager/snackbar.dart';
 import 'package:time_manager/theme/app_theme.dart';
 
 void main() async {
@@ -21,6 +21,7 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
+      scaffoldMessengerKey: SnackBarController.scaffoldMessengerKey,
       title: 'Flutter',
       theme: Theme.of(context),
       home: Home(),

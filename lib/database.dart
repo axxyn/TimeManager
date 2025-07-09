@@ -35,7 +35,8 @@ class DatabaseHelper {
       CREATE TABLE users (
         id INTEGER PRIMARY KEY,
         name TEXT,
-        surname TEXT
+        surname TEXT,
+        UNIQUE(name, surname)
       )
     ''');
     await initializeUsers(db);
@@ -43,7 +44,7 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE tasks (
         id INTEGER PRIMARY KEY,
-        name TEXT,
+        name TEXT UNIQUE,
         duration INTEGER
       )
     ''');

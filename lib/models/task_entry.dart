@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:time_manager/models/user.dart';
+import 'package:time_manager/models/utils.dart';
 
 part 'task_entry.freezed.dart';
 
@@ -12,7 +13,7 @@ enum Letters {
 }
 
 @freezed
-class TaskEntry with _$TaskEntry  {
+class TaskEntry with _$TaskEntry, Identifiable {
   TaskEntry._();
 
   factory TaskEntry({

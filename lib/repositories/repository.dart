@@ -7,20 +7,24 @@ abstract class Repository<T extends Identifiable> with CacheNotifierMixin<T> {
   String get table;
   Ref get ref;
 
+  Future<T?> findBy(List<String> keys, List<String> values) async {
+    final db = await DatabaseHelper.instance.db;
+
+    final keysString = keys.map((e) => '$e = ? ').toString();
+
+    final result = await db.query(table, where: keysString, whereArgs: [...values]);
+    return result.isNotEmpty ? fromJson(result[0]) : null;
+  }
+
   Future<int> insert(T item) async {
     final db = await DatabaseHelper.instance.db;
 
-    final isAdded = await db.query(table, where: 'name = ?', whereArgs: [item.name]);
-
-    if(isAdded.isEmpty) {
-      final result = await db.insert(table, item.toJson());
-      if (result != 0) {
-        Map<String, dynamic> data = {...item.toJson(), 'id': result};
-        cache.add(fromJson(data));
-      }
-      return result;
+    final result = await db.insert(table, item.toJson());
+    if (result != 0) {
+      Map<String, dynamic> data = {...item.toJson(), 'id': result};
+      cache.add(fromJson(data));
     }
-    return 0;
+    return result;
   }
 
   Future<List<Map<String, dynamic>>> queryAll() async {
