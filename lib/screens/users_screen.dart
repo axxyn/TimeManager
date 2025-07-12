@@ -4,17 +4,17 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:time_manager/future_handler.dart';
 import 'package:time_manager/init_future.dart';
-import 'package:time_manager/models/task.dart';
-import 'package:time_manager/repositories/task_repository.dart';
-import 'package:time_manager/screens/forms/task_form.dart';
+import 'package:time_manager/models/user.dart';
+import 'package:time_manager/repositories/user_repository.dart';
+import 'package:time_manager/screens/forms/user_form.dart';
 import 'package:time_manager/snackbar.dart';
 
-class TasksScreen extends HookConsumerWidget {
-  TasksScreen({super.key});
+class UsersScreen extends HookConsumerWidget {
+  UsersScreen({super.key});
 
   final nameController = useState(TextEditingController());
-  final durationController = useState(TextEditingController());
-  final editTaskId = useState<int?>(null);
+  final surnameController = useState(TextEditingController());
+  final editUserId = useState<int?>(null);
 
   final isExpanded = useState(false);
 
@@ -22,33 +22,33 @@ class TasksScreen extends HookConsumerWidget {
 
   void resetForm() {
     nameController.value.clear();
-    durationController.value.clear();
-    editTaskId.value = null;
+    surnameController.value.clear();
+    editUserId.value = null;
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tasks = ref.watch(tasksProvider);
+    final users = ref.watch(usersProvider);
 
-    final future = useInitFuture(() => ref.read(taskFutureProvider));
+    final future = useInitFuture(() => ref.read(userFutureProvider));
 
     return Column(
       spacing: 8,
       children: [
-        Text('Zadania'),
+        Text('Współpracownicy'),
         Expanded(
           child: FutureHandler(
             future: future,
             child: () {
               return ListView.builder(
-                itemCount: tasks.length,
+                itemCount: users.length,
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
-                  final task = tasks[index];
+                  final user = users[index];
                   return Dismissible(
-                    key: Key('task${task.id}'),
+                    key: Key('user${user.id}'),
                     onDismissed: (direction) async {
-                      await ref.read(taskRepositoryProvider).delete(task);
+                      await ref.read(userRepositoryProvider).delete(user);
                       resetForm();
                     },
                     child: Card(
@@ -56,22 +56,20 @@ class TasksScreen extends HookConsumerWidget {
                       color: Colors.transparent,
                       child: ListTile(
                         onTap: () {
-                          nameController.value.text = task.name;
-                          durationController.value.text = task.duration
-                              .toString();
-                          editTaskId.value = task.id;
+                          nameController.value.text = user.name;
+                          surnameController.value.text = user.surname ?? '';
+                          editUserId.value = user.id;
                         },
                         title: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(task.name),
+                            Text(user.fullName),
                             Opacity(
                               opacity: 0.5,
-                              child: Text('Id: ${task.id}'),
+                              child: Text('Id: ${user.id}'),
                             ),
                           ],
                         ),
-                        subtitle: Text('Czas: ${task.duration}'),
                       ),
                     ),
                   );
@@ -85,13 +83,13 @@ class TasksScreen extends HookConsumerWidget {
           child: Column(
             children: [
               Visibility(
-                visible: editTaskId.value != null,
+                visible: editUserId.value != null,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     spacing: 8,
                     children: [
-                      Text('Edycja: ${editTaskId.value}'),
+                      Text('Edycja: ${editUserId.value}'),
                       GestureDetector(
                         onTap: () => resetForm(),
                         child: Icon(Icons.undo, color: Colors.red),
@@ -102,22 +100,22 @@ class TasksScreen extends HookConsumerWidget {
               ),
               Form(
                 key: _formKey,
-                child: TaskForm(
+                child: UserForm(
                   nameController: nameController.value,
-                  durationController: durationController.value,
+                  surnameController: surnameController.value,
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      Task task = Task(
+                      User user = User(
                         name: nameController.value.text,
-                        duration: int.parse(durationController.value.text),
+                        surname: surnameController.value.text,
                       );
-                      if (editTaskId.value != null) {
-                        task = task.copyWith(id: editTaskId.value);
+                      if (editUserId.value != null) {
+                        user = user.copyWith(id: editUserId.value);
                       }
 
-                      if (editTaskId.value == null) {
+                      if (editUserId.value == null) {
                         try {
-                          await ref.read(taskRepositoryProvider).insert(task);
+                          await ref.read(userRepositoryProvider).insert(user);
                         } on DatabaseException catch (error) {
                           if (error.isUniqueConstraintError()) {
                             SnackBarController.showSnackBar(
@@ -127,8 +125,9 @@ class TasksScreen extends HookConsumerWidget {
                           }
                         }
                       } else {
-                        await ref.read(taskRepositoryProvider).update(task);
+                        await ref.read(userRepositoryProvider).update(user);
                       }
+
                       resetForm();
                     }
                   },

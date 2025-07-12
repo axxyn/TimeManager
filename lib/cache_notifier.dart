@@ -20,10 +20,6 @@ class CacheNotifier<T extends Identifiable> extends StateNotifier<List<T>> {
     state = [];
   }
 
-  T? operator [](int id) {
-    return state.firstWhere((e) => e.id == id);
-  }
-
   void operator []=(int id, T value) {
     state[state.indexWhere((e) => e.id == id)] = value;
   }

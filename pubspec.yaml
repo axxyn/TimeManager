@@ -32,10 +32,11 @@ dependencies:
     sdk: flutter
   sqflite: ^2.4.2
   path: ^1.9.1
-  hooks_riverpod: ^2.1.1
-  freezed_annotation:
-  json_annotation:
-  flutter_hooks:
+  hooks_riverpod: ^2.6.1
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.9.0
+  flutter_hooks: ^0.21.2
+  intl: ^0.20.2
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -45,15 +46,15 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner: ^2.3.2
-  freezed:
-  json_serializable:
+  freezed: ^3.1.0
+  json_serializable: ^6.9.5
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

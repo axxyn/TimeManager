@@ -1,5 +1,3 @@
-
-
 Null toJsonNull(_) => null;
 
 mixin Identifiable {

@@ -3,16 +3,17 @@ import 'package:flutter/material.dart';
 enum SnackBarColors {
   delete,
   add,
-  update
+  update,
+  error
 }
 
-extension GetColor on SnackBarColors {
+extension Options on SnackBarColors {
   Color get color {
-    return [Colors.red, Colors.green, Colors.blue][index];
+    return [Colors.red, Colors.green, Colors.blue, Colors.red][index];
   }
 
   String get desc {
-    return ['Skasowano', 'Dodano', 'Zaaktualizowano'][index];
+    return ['Skasowano', 'Dodano', 'Zaaktualizowano', 'Error'][index];
   }
 }
 
@@ -21,11 +22,15 @@ extension GetColor on SnackBarColors {
 class SnackBarController {
   static final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
-  static void showSnackBar(SnackBarColors snackBarColor) {
+  static void showSnackBar({SnackBarColors? snackBarColor, String? text, Color? color}) {
+    assert(snackBarColor != null || (text != null && color != null));
+
+    final color_ = snackBarColor != null ? snackBarColor.color : color!;
+    final text_ = snackBarColor != null ? snackBarColor.desc : text!;
     scaffoldMessengerKey.currentState?.showSnackBar(
       SnackBar(
-        backgroundColor: snackBarColor.color,
-        content: Text(snackBarColor.desc),
+        backgroundColor: color_,
+        content: Text(text_),
       )
     );
   }

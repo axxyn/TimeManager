@@ -12,14 +12,14 @@ final usersProvider = Provider((ref) {
   return cache;
 });
 
+final userProvider = Provider.family((ref, int id) {
+  final cache = ref.watch(_userProvider);
+  return cache.firstWhere((e) => e.id == id);
+});
+
 final userFutureProvider = Provider((ref) async {
   final repository = ref.read(userRepositoryProvider);
   final result = await repository.queryAll();
-  for(dynamic item in result) {
-    User user = User.fromJson(item);
-    repository.cache.add(user);
-  }
-  await Future.delayed(Duration(seconds: 3));
   return result;
 });
 

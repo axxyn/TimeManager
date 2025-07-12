@@ -6,16 +6,14 @@ part 'task.freezed.dart';
 part 'task.g.dart';
 
 @freezed
-class Task with _$Task, Identifiable {
+abstract class Task with _$Task, Identifiable {
   Task._();
 
   factory Task({
-    @JsonKey(includeIfNull: false) int? id,
+    int? id,
     required String name,
     required int duration
   }) = _Task;
 
   factory Task.fromJson(Map<String, dynamic> json) => _$TaskFromJson(json);
-  @override
-  Map<String, dynamic> toJson() => toJson();
 }

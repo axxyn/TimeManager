@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class TaskForm extends StatelessWidget {
-  const TaskForm({required this.controllers, required this.onPressed, super.key});
+  const TaskForm({required this.nameController, required this.durationController, required this.onPressed, super.key});
 
-  final List<TextEditingController> controllers;
+  final TextEditingController nameController;
+  final TextEditingController durationController;
 
   final void Function() onPressed;
 
@@ -14,7 +15,7 @@ class TaskForm extends StatelessWidget {
       spacing: 8,
       children: [
         TextFormField(
-          controller: controllers[0],
+          controller: nameController,
           keyboardType: TextInputType.text,
           decoration: const InputDecoration(labelText: 'Nazwa zadania'),
           validator: (value) {
@@ -25,7 +26,7 @@ class TaskForm extends StatelessWidget {
           },
         ),
         TextFormField(
-          controller: controllers[1],
+          controller: durationController,
           keyboardType: TextInputType.number,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           decoration: const InputDecoration(labelText: 'Czas'),

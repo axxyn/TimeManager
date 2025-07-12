@@ -4,6 +4,8 @@ import 'package:time_manager/models/task.dart';
 import 'package:time_manager/static_data.dart';
 import 'package:time_manager/models/user.dart';
 
+import 'models/entry.dart';
+
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._instance();
   static Database? _database;
@@ -49,6 +51,19 @@ class DatabaseHelper {
       )
     ''');
     await initializeTasks(db);
+
+    await db.execute('''
+      CREATE TABLE entries (
+        id INTEGER PRIMARY KEY,
+        task INTEGER,
+        coworker INTEGER,
+        timestamp INTEGER,
+        note TEXT,
+        FOREIGN KEY(task) REFERENCES tasks(id),
+        FOREIGN KEY(coworker) REFERENCES users(id)
+      )
+    ''');
+    await initializeEntries(db);
   }
 
   Future<void> initializeUsers(Database db) async {
@@ -60,6 +75,12 @@ class DatabaseHelper {
   Future<void> initializeTasks(Database db) async {
     for (Task task in tasksToAdd) {
       await db.insert('tasks', task.toJson());
+    }
+  }
+
+  Future<void> initializeEntries(Database db) async {
+    for (Entry entry in entriesToAdd) {
+      await db.insert('entries', entry.toJson());
     }
   }
 }

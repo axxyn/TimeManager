@@ -14,18 +14,12 @@ final tasksProvider = Provider((ref) {
 
 final taskProvider = Provider.family((ref, int id) {
   final cache = ref.watch(_taskProvider);
-  return cache[id];
+  return cache.firstWhere((e) => e.id == id);
 });
 
 final taskFutureProvider = Provider((ref) async {
   final repository = ref.read(taskRepositoryProvider);
   final result = await repository.queryAll();
-  repository.cache.clear();
-  for(Map<String, dynamic> item in result) {
-    Task task = Task.fromJson(item);
-    repository.cache.add(task);
-  }
-  await Future.delayed(Duration(seconds: 3));
   return result;
 });
 
