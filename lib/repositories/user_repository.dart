@@ -17,11 +17,11 @@ final userProvider = Provider.family((ref, int id) {
   return cache.firstWhere((e) => e.id == id);
 });
 
-final userFutureProvider = Provider((ref) async {
-  final repository = ref.read(userRepositoryProvider);
-  final result = await repository.queryAll();
-  return result;
-});
+// final userFutureProvider = Provider((ref) async {
+//   final repository = ref.read(userRepositoryProvider);
+//   final result = await repository.queryAll();
+//   return result;
+// });
 
 class UserRepository extends Repository<User> {
   UserRepository(this.ref);

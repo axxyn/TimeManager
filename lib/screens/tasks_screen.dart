@@ -3,7 +3,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:time_manager/future_handler.dart';
-import 'package:time_manager/init_future.dart';
 import 'package:time_manager/models/task.dart';
 import 'package:time_manager/repositories/task_repository.dart';
 import 'package:time_manager/screens/forms/task_form.dart';
@@ -12,8 +11,8 @@ import 'package:time_manager/snackbar.dart';
 class TasksScreen extends HookConsumerWidget {
   TasksScreen({super.key});
 
-  final nameController = useState(TextEditingController());
-  final durationController = useState(TextEditingController());
+  final nameController = useTextEditingController();
+  final durationController = useTextEditingController();
   final editTaskId = useState<int?>(null);
 
   final isExpanded = useState(false);
@@ -21,8 +20,8 @@ class TasksScreen extends HookConsumerWidget {
   final _formKey = GlobalKey<FormState>();
 
   void resetForm() {
-    nameController.value.clear();
-    durationController.value.clear();
+    nameController.clear();
+    durationController.clear();
     editTaskId.value = null;
   }
 
@@ -30,7 +29,11 @@ class TasksScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final tasks = ref.watch(tasksProvider);
 
-    final future = useInitFuture(() => ref.read(taskFutureProvider));
+    final future = useState(Future(() async {
+      final repository = ref.read(taskRepositoryProvider);
+      final result = await repository.queryAll();
+      return result;
+    }));
 
     return Column(
       spacing: 8,
@@ -38,7 +41,7 @@ class TasksScreen extends HookConsumerWidget {
         Text('Zadania'),
         Expanded(
           child: FutureHandler(
-            future: future,
+            future: future.value,
             child: () {
               return ListView.builder(
                 itemCount: tasks.length,
@@ -56,9 +59,8 @@ class TasksScreen extends HookConsumerWidget {
                       color: Colors.transparent,
                       child: ListTile(
                         onTap: () {
-                          nameController.value.text = task.name;
-                          durationController.value.text = task.duration
-                              .toString();
+                          nameController.text = task.name;
+                          durationController.text = task.duration.toString();
                           editTaskId.value = task.id;
                         },
                         title: Row(
@@ -103,13 +105,13 @@ class TasksScreen extends HookConsumerWidget {
               Form(
                 key: _formKey,
                 child: TaskForm(
-                  nameController: nameController.value,
-                  durationController: durationController.value,
+                  nameController: nameController,
+                  durationController: durationController,
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
                       Task task = Task(
-                        name: nameController.value.text,
-                        duration: int.parse(durationController.value.text),
+                        name: nameController.text,
+                        duration: int.parse(durationController.text),
                       );
                       if (editTaskId.value != null) {
                         task = task.copyWith(id: editTaskId.value);

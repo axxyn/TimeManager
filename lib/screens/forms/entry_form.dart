@@ -14,6 +14,8 @@ class EntryForm extends HookConsumerWidget {
   final taskId = useState<int?>(null);
   final userId = useState<int?>(null);
 
+  final noteController = useTextEditingController();
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tasks = ref.watch(tasksProvider);
@@ -32,9 +34,17 @@ class EntryForm extends HookConsumerWidget {
           decoration: const InputDecoration(labelText: 'Pracownik'),
           items: users.map((e) => DropdownMenuItem(value: e.id, child: Text(e.fullName))).toList(),
         ),
+        TextFormField(
+          controller: noteController,
+          keyboardType: TextInputType.multiline,
+          minLines: 1,
+          maxLines: 10,
+          decoration: const InputDecoration(labelText: 'Notatka'),
+        ),
         ElevatedButton(onPressed: () async {
           if (taskId.value != null && userId.value != null) {
-            await ref.read(entryRepositoryProvider).insert(Entry(task: taskId.value!, coworker: userId.value!));
+            final entry = Entry(task: taskId.value!, coworker: userId.value!, note: noteController.text.isNotEmpty ? noteController.text : null);
+            await ref.read(entryRepositoryProvider).insert(entry);
           }
         }, child: Text('Potwierdź')),
       ],

@@ -2,8 +2,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:time_manager/cache_notifier.dart';
 import 'package:time_manager/models/entry.dart';
 import 'package:time_manager/repositories/repository.dart';
-import 'package:time_manager/repositories/task_repository.dart';
-import 'package:time_manager/repositories/user_repository.dart';
 
 final entryRepositoryProvider = Provider<EntryRepository>((ref) => EntryRepository(ref));
 
@@ -19,18 +17,18 @@ final entryProvider = Provider.family((ref, int id) {
   return cache.firstWhere((e) => e.id == id);
 });
 
-final entryFutureProvider = Provider((ref) async {
-  final repository = ref.read(entryRepositoryProvider);
-      final result = await repository.queryAll();
-      final usersId = result.map((e) => e.coworker).toList();
-      final userRepository = ref.read(userRepositoryProvider);
-      await userRepository.queryIds(usersId);
-
-      final tasksId = result.map((e) => e.task).toList();
-      final taskRepository = ref.read(taskRepositoryProvider);
-      await taskRepository.queryIds(tasksId);
-      return result;
-});
+// final entryFutureProvider = Provider((ref) async {
+//   final repository = ref.read(entryRepositoryProvider);
+//   final result = await repository.queryAll();
+//   final usersId = result.map((e) => e.coworker).toList();
+//   final userRepository = ref.read(userRepositoryProvider);
+//   await userRepository.queryIds(usersId);
+//
+//   final tasksId = result.map((e) => e.task).toList();
+//   final taskRepository = ref.read(taskRepositoryProvider);
+//   await taskRepository.queryIds(tasksId);
+//   return result;
+// });
 
 class EntryRepository extends Repository<Entry> {
   EntryRepository(this.ref);

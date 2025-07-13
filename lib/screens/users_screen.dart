@@ -3,7 +3,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:time_manager/future_handler.dart';
-import 'package:time_manager/init_future.dart';
 import 'package:time_manager/models/user.dart';
 import 'package:time_manager/repositories/user_repository.dart';
 import 'package:time_manager/screens/forms/user_form.dart';
@@ -12,8 +11,8 @@ import 'package:time_manager/snackbar.dart';
 class UsersScreen extends HookConsumerWidget {
   UsersScreen({super.key});
 
-  final nameController = useState(TextEditingController());
-  final surnameController = useState(TextEditingController());
+  final nameController = useTextEditingController();
+  final surnameController = useTextEditingController();
   final editUserId = useState<int?>(null);
 
   final isExpanded = useState(false);
@@ -21,8 +20,8 @@ class UsersScreen extends HookConsumerWidget {
   final _formKey = GlobalKey<FormState>();
 
   void resetForm() {
-    nameController.value.clear();
-    surnameController.value.clear();
+    nameController.clear();
+    surnameController.clear();
     editUserId.value = null;
   }
 
@@ -30,7 +29,11 @@ class UsersScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final users = ref.watch(usersProvider);
 
-    final future = useInitFuture(() => ref.read(userFutureProvider));
+    final future = useState(Future(() async {
+      final repository = ref.read(userRepositoryProvider);
+      final result = await repository.queryAll();
+      return result;
+    }));
 
     return Column(
       spacing: 8,
@@ -38,7 +41,7 @@ class UsersScreen extends HookConsumerWidget {
         Text('Współpracownicy'),
         Expanded(
           child: FutureHandler(
-            future: future,
+            future: future.value,
             child: () {
               return ListView.builder(
                 itemCount: users.length,
@@ -56,8 +59,8 @@ class UsersScreen extends HookConsumerWidget {
                       color: Colors.transparent,
                       child: ListTile(
                         onTap: () {
-                          nameController.value.text = user.name;
-                          surnameController.value.text = user.surname ?? '';
+                          nameController.text = user.name;
+                          surnameController.text = user.surname ?? '';
                           editUserId.value = user.id;
                         },
                         title: Row(
@@ -101,13 +104,13 @@ class UsersScreen extends HookConsumerWidget {
               Form(
                 key: _formKey,
                 child: UserForm(
-                  nameController: nameController.value,
-                  surnameController: surnameController.value,
+                  nameController: nameController,
+                  surnameController: surnameController,
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
                       User user = User(
-                        name: nameController.value.text,
-                        surname: surnameController.value.text,
+                        name: nameController.text,
+                        surname: surnameController.text,
                       );
                       if (editUserId.value != null) {
                         user = user.copyWith(id: editUserId.value);

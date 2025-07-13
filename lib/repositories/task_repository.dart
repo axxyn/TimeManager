@@ -17,11 +17,11 @@ final taskProvider = Provider.family((ref, int id) {
   return cache.firstWhere((e) => e.id == id);
 });
 
-final taskFutureProvider = Provider((ref) async {
-  final repository = ref.read(taskRepositoryProvider);
-  final result = await repository.queryAll();
-  return result;
-});
+// final taskFutureProvider = Provider((ref) async {
+//   final repository = ref.read(taskRepositoryProvider);
+//   final result = await repository.queryAll();
+//   return result;
+// });
 
 class TaskRepository extends Repository<Task> {
   TaskRepository(this.ref);

@@ -17,7 +17,7 @@ class Entry with _$Entry, Identifiable {
   @override
   final int coworker;
   @override
-  final int timestamp;
+  int timestamp;
   @override
   final String? note;
 
