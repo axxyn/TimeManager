@@ -58,7 +58,9 @@ class DatabaseHelper {
         task INTEGER,
         coworker INTEGER,
         timestamp INTEGER,
-        note TEXT,
+        note TEXT OPTIONAL,
+        area TEXT,
+        number INTEGER,
         FOREIGN KEY(task) REFERENCES tasks(id),
         FOREIGN KEY(coworker) REFERENCES users(id)
       )

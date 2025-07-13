@@ -19,7 +19,7 @@ class UsersScreen extends HookConsumerWidget {
 
   final _formKey = GlobalKey<FormState>();
 
-  void resetForm() {
+  void clearForm() {
     nameController.clear();
     surnameController.clear();
     editUserId.value = null;
@@ -52,7 +52,7 @@ class UsersScreen extends HookConsumerWidget {
                     key: Key('user${user.id}'),
                     onDismissed: (direction) async {
                       await ref.read(userRepositoryProvider).delete(user);
-                      resetForm();
+                      clearForm();
                     },
                     child: Card(
                       margin: EdgeInsetsGeometry.zero,
@@ -94,7 +94,7 @@ class UsersScreen extends HookConsumerWidget {
                     children: [
                       Text('Edycja: ${editUserId.value}'),
                       GestureDetector(
-                        onTap: () => resetForm(),
+                        onTap: () => clearForm(),
                         child: Icon(Icons.undo, color: Colors.red),
                       ),
                     ],
@@ -131,7 +131,7 @@ class UsersScreen extends HookConsumerWidget {
                         await ref.read(userRepositoryProvider).update(user);
                       }
 
-                      resetForm();
+                      clearForm();
                     }
                   },
                 ),

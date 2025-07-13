@@ -8,7 +8,7 @@ part 'entry.g.dart';
 @freezed
 @JsonSerializable()
 class Entry with _$Entry, Identifiable {
-  Entry({this.id, required this.task, required this.coworker, DateTime? dateTime, this.note}) : timestamp = dateTime != null ? dateTime.millisecondsSinceEpoch : DateTime.now().millisecondsSinceEpoch;
+  Entry({this.id, required this.task, required this.coworker, DateTime? dateTime, this.note, required this.area, required this.number}) : timestamp = dateTime != null ? dateTime.millisecondsSinceEpoch : DateTime.now().millisecondsSinceEpoch;
 
   @override
   final int? id;
@@ -20,6 +20,10 @@ class Entry with _$Entry, Identifiable {
   int timestamp;
   @override
   final String? note;
+  @override
+  final EntryArea area;
+  @override
+  final int number;
 
   factory Entry.fromJson(Map<String, dynamic> json) => _$EntryFromJson(json);
 
@@ -27,4 +31,5 @@ class Entry with _$Entry, Identifiable {
   Map<String, dynamic> toJson() => _$EntryToJson(this);
 
   DateTime get timestampDateTime => DateTime.fromMillisecondsSinceEpoch(timestamp);
+  bool get isExpandable => note != null;
 }

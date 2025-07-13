@@ -19,8 +19,8 @@ class HomeScreen extends HookConsumerWidget {
     final entries = ref.watch(entriesProvider);
 
     final future = useState(Future(() async {
-      final repository = ref.read(entryRepositoryProvider);
-      final result = await repository.queryAll();
+      final entryRepository = ref.read(entryRepositoryProvider);
+      final result = await entryRepository.queryAll();
       final usersId = result.map((e) => e.coworker).toList();
       final userRepository = ref.read(userRepositoryProvider);
       await userRepository.queryIds(usersId);
@@ -51,6 +51,7 @@ class HomeScreen extends HookConsumerWidget {
         children: [
           Text('Zadanie: ${user.fullName}'),
           Text('Pracownik: ${task.name}'),
+          Text('Obszar: ${entry.number}/${entry.area.name}'),
         ],
       );
 
@@ -64,8 +65,8 @@ class HomeScreen extends HookConsumerWidget {
           expandedCrossAxisAlignment: CrossAxisAlignment.start,
           childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
           children: [
-            //TaskPage(task: task),
-            if (entry.note != null)
+            //EntryPage(entry: entry),
+            if (entry.isExpandable)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [Text('Notatka:'), Text(entry.note!)],
@@ -83,65 +84,70 @@ class HomeScreen extends HookConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: EntryForm(),
         ),
-        Expanded(
-          child: FutureHandler(
-            future: future.value,
-            child: () {
-              final dayFormat = DateFormat.yMMMMd();
+        FutureHandler(
+          future: future.value,
+          child: () {
+            final dayFormat = DateFormat.yMMMMd();
+            entries.sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
-              Map<String, List<Entry>> grouped = {};
-              for (Entry entry in entries) {
-                String key = dayFormat.format(entry.timestampDateTime);
-                if (grouped.containsKey(key)) {
-                  grouped[key]?.add(entry);
-                } else {
-                  grouped[key] = [entry];
-                }
+            Map<String, List<Entry>> grouped = {};
+            for (Entry entry in entries) {
+              String key = dayFormat.format(entry.timestampDateTime);
+              if (grouped.containsKey(key)) {
+                grouped[key]?.add(entry);
+              } else {
+                grouped[key] = [entry];
               }
-              final groupedKeys = grouped.keys.toList();
+            }
+            final groupedKeys = grouped.keys.toList();
 
-              return ListView.builder(
-                itemCount: groupedKeys.length,
-                shrinkWrap: true,
-                itemBuilder: (context, keyIndex) => Column(
-                  children: [
-                    Text(groupedKeys[keyIndex]),
-                    ListView.builder(
-                      itemCount: grouped[groupedKeys[keyIndex]]?.length,
-                      shrinkWrap: true,
-                      itemBuilder: (context, listIndex) {
-                        final entry = grouped.values.elementAt(
-                          keyIndex,
-                        )[listIndex];
+            return Expanded(
+              child: SingleChildScrollView(
+                child: ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: groupedKeys.length,
+                  itemBuilder: (context, keyIndex) => Column(
+                    children: [
+                      Text(groupedKeys[keyIndex]),
+                      ListView.builder(
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: grouped[groupedKeys[keyIndex]]?.length,
+                        shrinkWrap: true,
+                        itemBuilder: (context, listIndex) {
+                          final entry = grouped.values.elementAt(
+                            keyIndex,
+                          )[listIndex];
 
-                        final user = ref.read(userProvider(entry.coworker));
-                        final task = ref.read(taskProvider(entry.task));
+                          final user = ref.read(userProvider(entry.coworker));
+                          final task = ref.read(taskProvider(entry.task));
 
-                        return Dismissible(
-                          key: Key('entry${entry.id!.toString()}'),
-                          onDismissed: (direction) async {
-                            await ref
-                                .read(entryRepositoryProvider)
-                                .delete(entry);
-                          },
-                          child: Card(
-                            margin: EdgeInsetsGeometry.zero,
-                            color: Colors.transparent,
-                            child: getListTile(
-                              isExpandable: entry.note != null,
-                              entry: entry,
-                              task: task,
-                              user: user,
+                          return Dismissible(
+                            key: Key('entry${entry.id!.toString()}'),
+                            onDismissed: (direction) async {
+                              await ref
+                                  .read(entryRepositoryProvider)
+                                  .delete(entry);
+                            },
+                            child: Card(
+                              margin: EdgeInsetsGeometry.zero,
+                              color: Colors.transparent,
+                              child: getListTile(
+                                isExpandable: entry.note != null,
+                                entry: entry,
+                                task: task,
+                                user: user,
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
       ],
     );

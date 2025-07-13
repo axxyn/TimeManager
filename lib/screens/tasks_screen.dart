@@ -19,7 +19,7 @@ class TasksScreen extends HookConsumerWidget {
 
   final _formKey = GlobalKey<FormState>();
 
-  void resetForm() {
+  void clearForm() {
     nameController.clear();
     durationController.clear();
     editTaskId.value = null;
@@ -52,7 +52,7 @@ class TasksScreen extends HookConsumerWidget {
                     key: Key('task${task.id}'),
                     onDismissed: (direction) async {
                       await ref.read(taskRepositoryProvider).delete(task);
-                      resetForm();
+                      clearForm();
                     },
                     child: Card(
                       margin: EdgeInsetsGeometry.zero,
@@ -95,7 +95,7 @@ class TasksScreen extends HookConsumerWidget {
                     children: [
                       Text('Edycja: ${editTaskId.value}'),
                       GestureDetector(
-                        onTap: () => resetForm(),
+                        onTap: () => clearForm(),
                         child: Icon(Icons.undo, color: Colors.red),
                       ),
                     ],
@@ -131,7 +131,7 @@ class TasksScreen extends HookConsumerWidget {
                       } else {
                         await ref.read(taskRepositoryProvider).update(task);
                       }
-                      resetForm();
+                      clearForm();
                     }
                   },
                 ),
